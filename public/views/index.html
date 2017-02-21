@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/css/style.css' />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        $(function(){
+            var iosocket;
+            $("#connect").click(function () {
+                iosocket = io.connect('/');    // 可指定命名空间也可不指定
+                iosocket.on('connect', function () {
+                    $("#connect").attr("disabled", true);
+                    $("#send").removeAttr("disabled");
+                    $("#status").append("<div>连接成功</div>");
+                });
+                iosocket.on('disconnect', function() {
+                    $("#send").attr("disabled", true);
+                    $("#connect").removeAttr("disabled");
+                    $("#status").append("<div>连接断开</div>");
+                });
+                iosocket.on('DATA', function (data) {
+                   $("#result").append("<div>" + data + "</div>");
+                });
+            });
+            $("#send").click(function () {
+                if (!$("#name").val() || !$("#data").val()) {
+                    $("#status").append("<div>信息填写错误</div>");
+                } else {
+                    $("#result").append("<div>" + $("#name").val() + ": " + $("#data").val() + "</div>");
+                    iosocket.send($("#name").val() + ": " + $("#data").val());
+                }
+            });
+       });
+   </script>
+  </head>
+  <body>
+    <h1>聊天室</h1>
+    <hr>
+    聊天内容如下:
+    <p id="result"></p>
+    <hr>
+    <div >用户名:</div>
+    <input type="text" id="name" value="">
+    <div >聊天内容:</div>
+    <textarea id="data" rows="8" cols="80"></textarea>
+    <br/>
+    <button type="button" id="send" disabled="true">发送信息</button>
+    <button type="button" id="connect">连接聊天室</button>
+    <br>
+    <p id="status"></p>
+  </body>
+</html>
